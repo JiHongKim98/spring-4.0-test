@@ -1,8 +1,13 @@
+import org.springframework.boot.gradle.tasks.aot.ProcessAot
+import org.springframework.boot.gradle.tasks.aot.ProcessTestAot
+import org.springframework.boot.gradle.tasks.bundling.BootJar
+
 plugins {
     kotlin("jvm") version "2.2.21"
     kotlin("plugin.spring") version "2.2.21"
     id("org.springframework.boot") version "4.0.0"
     id("io.spring.dependency-management") version "1.1.7"
+    id("org.springframework.boot.aot") version "4.0.0"
     kotlin("plugin.jpa") version "2.2.21"
 }
 
@@ -50,4 +55,24 @@ allOpen {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+}
+
+// AOT 기능 설정
+tasks.named<BootJar>("bootJar") {
+    dependsOn("processAot")
+
+    layered {
+        enabled = true
+    }
+
+    mainClass.set("demo.todo.TodoApplicationKt")
+}
+
+tasks.named<ProcessAot>("processAot") {
+    enabled = true
+    dependsOn("classes")
+}
+
+tasks.named<ProcessTestAot>("processTestAot") {
+    enabled = false
 }
